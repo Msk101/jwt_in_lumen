@@ -31,6 +31,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
     
     protected function getUserByEmail($email){
-		return User::where('email',$email)->first();
-	}
+	return User::where('email',$email)->first();
+    }
+	
+    protected function loginUser($params){
+	return User::where("email", "=", $params['email'])
+                      ->where("password", "=", $params['password'])
+                      ->first();
+    }
 }
