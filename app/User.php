@@ -29,4 +29,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password','api_token',
     ];
+    
+    protected function getUserByEmail($email){
+		return User::where('email',$email)->first();
+	}
 }
