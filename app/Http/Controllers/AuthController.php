@@ -82,41 +82,44 @@ class AuthController extends Controller
     }
 
 
-     public function signup(user $user){
+    public function signup(Request $request){
+         
          $payload = [
             'iss' => "lumen-jwt", // Issuer of the token
-            'sub' => $user->id, // Subject of the token
+            'sub' =>  $this->request->input('email'), //"ngisecret",//$user->id, // Subjectthe token
             'iat' => time(), // Time when JWT was issued. 
-            'exp' => time() + 60*60 // Expiration time
+            'exp' => time() + 60 // Expiration time
         ];
-
-        $this->validate($this->request, [
+        
+      $user= $this->validate($this->request, [
             'firstName'     => 'required',
             'lastName'     => 'required',
             'email'     => 'required|email|unique:users',
             'password'  => 'required'
         ]);
 
-        $user = new User;
-        $user->firstName=$this->request->input('firstName');
-        $user->lastName=$this->request->input('lastName');
-        $user->email=$this->request->input('email');
-        $user->password=hash::make($this->request->input('password'));
-        $user->api_token=JWT::encode($payload, env('JWT_SECRET'));
-        $user->active=1;
-        if($user->save()){
+       $data = ([
+
+            'firstName'=> $this->request->input('firstName'),
+            'lastName' => $this->request->input('lastName'),
+            'email' => $this->request->input('email'),
+            'password' => hash::make($this->request->input('password')),
+            'api_token' =>JWT::encode($payload, env('JWT_SECRET')),
+            'active' => 1
+   
+        ]);
+  
+            $user = new User;
+            $check = $user->add($data); 
+        if($check){
 
             return response()->json([
-                // 'api_token' => $this->jwt($user)
                 'status' => 'succesfully added.'
             ], 200);
 
         } 
 
-        else  {
-           return response()->json([
-            'error' => 'Please enter the complete user information!.'
-        ], 400);
-          }
+        return response()->json(['error' => 'Please enter the complete user information!.'], 400);
       }   
 }
+
