@@ -39,4 +39,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                       ->where("password", "=", $params['password'])
                       ->first();
     }
+	function add($data = array())
+    {
+        return DB::table($this->table)->insert($data);
+    }
 }
