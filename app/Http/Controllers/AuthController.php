@@ -58,7 +58,8 @@ class AuthController extends Controller
         ]);
 
         // Find the user by email
-        $user = User::where('email', $this->request->input('email'))->first();
+       
+        $user = User::getUserByEmail($this->request->input('email'));
 
         if (!$user) {
             
