@@ -12,9 +12,9 @@ class UserController extends Controller
     }
     public function login(Request $request){
       if ($request->has('email') && $request->has('password')) {
-        $user = User:: where("email", "=", $request->input('email'))
-                      ->where("password", "=", sha1($this->salt.$request->input('password')))
-                      ->first();
+        $params['email'] = $request->input('email');
+        $params['password'] = sha1($this->salt.$request->input('password'));
+        $user = User::loginUser($params); 
         if ($user) {
           $token=str_random(60);
           $user->api_token=$token;
