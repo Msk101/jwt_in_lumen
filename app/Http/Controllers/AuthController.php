@@ -70,6 +70,11 @@ class AuthController extends Controller
 
         // Verify the password and generate the token
         if (Hash::check($this->request->input('password'), $user->password)) {
+           if($user){
+          $api_token=$this->jwt($user);
+          $user->api_token=$api_token;
+          $user->save();
+        } //update token every time
             return response()->json([
                 'api_token' => $this->jwt($user)
             ], 200);
