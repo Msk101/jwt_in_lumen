@@ -1,44 +1,66 @@
 <?php
-
 namespace App\Http\Middleware;
-
 use Closure;
 use Exception;
 use App\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\ExpiredException;
-
 class JwtMiddleware
 {
     public function handle($request, Closure $next, $guard = null)
     {
-        $api_token = $request->get('token');
+        $api_token = $request->header('x-auth-token');
         
         if(!$api_token) {
-            // Unauthorized response if token not there
-            return response()->json([
-                'error' => 'Token not provided.'
-            ], 401);
-        }
+            $data =[
+                    "error"=> true,
+                    "message"=> "Token not provided.",
+                    "data"=> [],
+                    "code"=> 404
+                ];
+            return $data;
 
+        }
         try {
-            $credentials = JWT::decode($api_token, env('JWT_SECRET'), ['HS256']);
+             $credentials = JWT::decode($api_token, env('JWT_SECRET'), ['HS256']);
+             $user = User::find($credentials->sub);
+            if (count($user) > 0)
+            {
+                $data =[
+                    "error"=> false,
+                    "message"=> "Success",
+                    "data"=> $user,
+                    "code"=> 200
+                ];
+            }else{
+                $data =[
+                    "error"=> true,
+                    "message"=> "UN Success",
+                    "data"=> [],
+                    "code"=> 404
+                ];
+            }
+            return $data;
+
         } catch(ExpiredException $e) {
-            return response()->json([
-                'error' => 'Provided token is expired.'
-            ], 400);
 
+             $data =[
+                    "error"=> true,
+                    "message"=> "Provided token is expired.",
+                    "data"=> [],
+                    "code"=> 404
+                ];
+            return $data;
         } catch(Exception $e) {
-            return response()->json([
-                'error' => 'An error while decoding token.'
-            ], 400);
-        }
 
-        $user = User::find($credentials->sub);
+             $data =[
+                    "error"=> true,
+                    "message"=> "Error",
+                    "data"=> [],
+                    "code"=> 404
+                ];
+            return $data;
+        }     
 
-        // Now let's put the user in the request class so that you can grab it from there
-        $request->auth = $user;
-
-        return $next($request);
     }
 }
