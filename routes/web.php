@@ -23,12 +23,13 @@ $app->get('users/info', [
 	'uses' => 'UserController@info'
 ]);
 
-$app->post('auth/login', ['uses' => 'AuthController@authenticate']);
-$app->post('auth/register', ['uses' => 'AuthController@signup']);
-$app->group(
+$router->post('auth/login', ['uses' => 'AuthController@authenticate']);
+$router->post('auth/register', ['uses' => 'AuthController@signup']);
+$router->post('auth/logout', ['uses' => 'AuthController@logout']);
+$router->group(
     ['middleware' => 'jwt.auth'], 
-    function() use ($app) {
-        $app->get('users', function() {
+    function() use ($router) {
+        $router->get('verifyToken', function() {
             $users = \App\User::all();
             return response()->json($users);
         });
